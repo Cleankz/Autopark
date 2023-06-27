@@ -1,0 +1,14 @@
+{% extends 'main.html' %}
+{% block title %}<title>Интернет-магазин autopark</title>{% endblock %}
+
+{% block content %}
+{% for enterprise in enterprises %}
+    <h2>
+        <p>{{enterprise.name}}</p>
+    </h2>
+    <ul>
+        <li>Адрес: {{enterprise.address}}</li>
+        <li>Число сотрудников: {{enterprise.num_of_employee}}</li>
+    </ul>
+{% endfor %}
+{% endblock %}

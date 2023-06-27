@@ -1,0 +1,13 @@
+{% extends 'main.html' %}
+{% block title %}<title>Интернет-магазин autopark</title>{% endblock %}
+{% block content %}
+<h2>Удалить машину</h2>
+<form method="post">
+   <div>
+      {% csrf_token %}
+      <p>Вы уверены что хотите удалить "{{ object }}"?</p>
+      <input type="submit" value="Да" />
+   </div>
+</form>
+
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends 'main.html' %}
+{% block title %}<title>Интернет-магазин autopark</title>{% endblock %}
+{% block content %}
+<h2>Обновить запись</h2>
+<form method="post">
+   <div class="form-group">
+      {% csrf_token %} {{ form.as_p }}
+      <button type="submit" class="btn btn-primary">Изменить</button>
+   </div>
+</form>
+<a href="{% url 'deleteenterprise' enterprise.id %}"><button class="btn btn-danger" >Удалить</button></a>
+
+{% endblock %}
