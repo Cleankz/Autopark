@@ -9,7 +9,6 @@ import random
 class Command(BaseCommand):
     help = 'Add driver'
 
-
     def add_arguments(self, parser):
         parser.add_argument('enterprise', nargs='+', type=str,help='Enterprise name')
         parser.add_argument('num_driver', type=int)
