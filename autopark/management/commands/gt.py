@@ -20,7 +20,7 @@ class Command(BaseCommand):
         route = Routes.objects.create(car=car,route = MultiPoint(Point(x=float(faker.longitude()), y=float(faker.latitude()))))
         for i in range(10):
             point = Point(x=float(faker.longitude()), y=float(faker.latitude()))
-            route.route.add(point)
+            route.route.append(point)
         print(point)
         print(route)
 
