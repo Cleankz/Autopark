@@ -8,7 +8,10 @@ class Command(BaseCommand):
 
     def add_arguments(self,parser):
         parser.add_argument('car', type=int, help='Car id')
-    def handle(self,car, *args, **kwargs):
+        parser.add_argument('treck_len', type=int, help='treck lenght')
+        parser.add_argument('max_speed', type=int, help='Car max speed')
+        parser.add_argument('spread', type=int, help='spread num')
+    def handle(self,car, *args,treck_len,max_speed,spread, **kwargs):
         try:
             car = Vehicle.objects.get(pk=car)
 
@@ -23,12 +26,22 @@ class Command(BaseCommand):
             route.route.append(point)
         route.save()
         print(route)
-     coords = ((8.34234, 48.23424), (8.34423, 48.26424))
 
-    client = openrouteservice.Client(key='5b3ce3597851110001cf6248170095f78f3641c594c261ec409')
-    routes = client.directions(coords)
+        coords = ((8.34234, 48.23424), (8.34423, 48.26424))
+        params = {
+        'coordinates': coords,
+        'preference': 'fastest',
+        'profile': f'driving-car-{max_speed}',
+        'units': 'km',
+        'language': 'ru',
+        'spacing': spread,
+        # 'spread': spread,
+        'distance': treck_len,
 
-    print(routes)
+        }
+        client = openrouteservice.Client(key='5b3ce3597851110001cf6248017011c8bff04d5096aae5b5c8f03c15')
+        routes = client.directions(**params)
+        print(routes)
 
 
 
