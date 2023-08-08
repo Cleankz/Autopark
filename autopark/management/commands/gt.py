@@ -3,6 +3,7 @@ from faker import Faker
 from django.core.management.base import BaseCommand, CommandError
 from autopark.models import Vehicle, Enterprise, Brand,Driver,Enterprise, Routes
 import openrouteservice
+import json
 class Command(BaseCommand):
     help = 'add treck'
 
@@ -24,20 +25,25 @@ class Command(BaseCommand):
         for i in range(10):
             point = Point(x=float(faker.longitude()), y=float(faker.latitude()))
             route.route.append(point)
+
         route.save()
         print(route)
-
-        coords = ((8.34234, 48.23424), (8.34423, 48.26424))
+        coords = []
+        for p in route.route:
+            coords.append({'longitude':p.y,'latitude':p.x})
+        json_points = json.dumps(coords)
+        # options = {'maximum_speed': max_speed}
+        print(coords)
         params = {
-        'coordinates': coords,
+        'coordinates': json_points,
         'preference': 'fastest',
-        'profile': f'driving-car-{max_speed}',
+        'profile': 'driving-car',
         'units': 'km',
         'language': 'ru',
-        'spacing': spread,
+        # 'maxspeed': max_speed,
+        # 'spacing': spread,
         # 'spread': spread,
-        'distance': treck_len,
-
+        # 'distance_limit': treck_len,
         }
         client = openrouteservice.Client(key='5b3ce3597851110001cf6248017011c8bff04d5096aae5b5c8f03c15')
         routes = client.directions(**params)
