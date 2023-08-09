@@ -28,25 +28,25 @@ class Command(BaseCommand):
 
         route.save()
         print(route)
-        coords = []
-        for p in route.route:
-            coords.append({'longitude':p.y,'latitude':p.x})
-        json_points = json.dumps(coords)
-        # options = {'maximum_speed': max_speed}
-        print(coords)
+        coords = ((8.34234,48.23424),(8.34423,48.26424))
+        # for p in route.route:
+        #     coords.append({'longitude':p.y,'latitude':p.x})
+        # json_points = json.dumps(coords)
+        # # options = {'maximum_speed': max_speed}
+        # print(json_points)
         params = {
-        'coordinates': json_points,
+        'coordinates': coords,
         'preference': 'fastest',
         'profile': 'driving-car',
         'units': 'km',
         'language': 'ru',
-        # 'maxspeed': max_speed,
+        # 'maximum_speed_lower_bound': max_speed,
         # 'spacing': spread,
         # 'spread': spread,
         # 'distance_limit': treck_len,
         }
         client = openrouteservice.Client(key='5b3ce3597851110001cf6248017011c8bff04d5096aae5b5c8f03c15')
-        routes = client.directions(**params)
+        routes = client.directions( coordinates = coords)
         print(routes)
 
 
