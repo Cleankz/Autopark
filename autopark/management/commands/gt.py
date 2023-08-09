@@ -34,10 +34,9 @@ class Command(BaseCommand):
         # json_points = json.dumps(coords)
         # # options = {'maximum_speed': max_speed}
         # print(json_points)
-        options = {
-        'profile': 'driving-car',
-        "maximum_speed": 100,
-        }
+        # options = {
+        # "maximum_speed": 100,
+        # }
         # parameters = {
         # # 'spacing': 100,
         # 'coordinates': coords,
@@ -51,7 +50,7 @@ class Command(BaseCommand):
         # # 'distance_limit': treck_len,
         # }
         client = openrouteservice.Client(key='5b3ce3597851110001cf6248017011c8bff04d5096aae5b5c8f03c15')
-        routes = client.directions(coordinates = coords, options = options)
+        routes = client.directions(profile = 'driving-car',coordinates = coords)
         print(routes)
 
 
