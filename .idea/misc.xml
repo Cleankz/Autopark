@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="Black">
+    <option name="enabledOnReformat" value="true" />
+    <option name="sdkUUID" value="9f19cbda-09dc-44d7-9c0e-a8496b793617" />
+  </component>
   <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.10 (AP_n)" project-jdk-type="Python SDK" />
   <component name="PyCharmProfessionalAdvertiser">
     <option name="shown" value="true" />

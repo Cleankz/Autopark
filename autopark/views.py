@@ -18,80 +18,89 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 
 
-
 class VehicleAPIView(generics.ListAPIView):
     queryset = Vehicle.objects.all()
     serializer_class = VehicleSerializer
     permission_classes = (IsAdminUser,)
+
 
 class VehicleAPIDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Vehicle.objects.all()
     serializer_class = VehicleSerializer
 
 
-class VehicleAPIList(generics. ListCreateAPIView):
+class VehicleAPIList(generics.ListCreateAPIView):
     queryset = Vehicle.objects.all()
     serializer_class = VehicleSerializer
 
 
 def index(request):
-    vehicles = Vehicle.objects.all().order_by('brand')[:8]
-    enterprises = Enterprise.objects.all().order_by('name')
-    context = {'vehicles': vehicles, 'enterprises':enterprises}
-    return render(request, 'index.html', context=context)
+    vehicles = Vehicle.objects.all().order_by("brand")[:8]
+    enterprises = Enterprise.objects.all().order_by("name")
+    context = {"vehicles": vehicles, "enterprises": enterprises}
+    return render(request, "index.html", context=context)
+
 
 def vehicleview(request):
-    vehicles = Vehicle.objects.all().order_by('brand')[:8]
-    context = {'vehicles': vehicles}
-    return render(request, 'vehicle.html', context=context)
+    vehicles = Vehicle.objects.all().order_by("brand")[:8]
+    context = {"vehicles": vehicles}
+    return render(request, "vehicle.html", context=context)
+
 
 def enterpriseview(request):
-    enterprises = Enterprise.objects.all().order_by('name')
-    context = {'enterprises':enterprises}
-    return render(request, 'enterprise.html', context=context)
+    enterprises = Enterprise.objects.all().order_by("name")
+    context = {"enterprises": enterprises}
+    return render(request, "enterprise.html", context=context)
+
 
 class CreateEnterprise(CreateView):
     model = Enterprise
-    template_name = 'create_enterprise_form.html'
-    fields = ['name','address','num_of_employee']
-    success_url = reverse_lazy('enterprise')
+    template_name = "create_enterprise_form.html"
+    fields = ["name", "address", "num_of_employee"]
+    success_url = reverse_lazy("enterprise")
+
 
 class CreateVehicle(CreateView):
     model = Vehicle
-    template_name = 'create_vehicle_form.html'
-    fields = ['year_manufacture','mileage','price','brand','owner']
-    success_url = reverse_lazy('vehicle')
+    template_name = "create_vehicle_form.html"
+    fields = ["year_manufacture", "mileage", "price", "brand", "owner"]
+    success_url = reverse_lazy("vehicle")
 
 
 class VehicleUpdateView(UpdateView):
     model = Vehicle
-    template_name = 'vehicle_update_form.html'
-    fields = ['year_manufacture','mileage','price','brand','owner']
+    template_name = "vehicle_update_form.html"
+    fields = ["year_manufacture", "mileage", "price", "brand", "owner"]
+
 
 class EnterpriselUpdateView(UpdateView):
     model = Enterprise
-    template_name = 'enterprise_update_form.html'
-    fields = ['name','address','num_of_employee']
+    template_name = "enterprise_update_form.html"
+    fields = ["name", "address", "num_of_employee"]
+
 
 class VehicleDeleteView(DeleteView):
     model = Vehicle
-    template_name = 'vehicle_delete_form.html'
-    success_url = reverse_lazy('vehicle')
+    template_name = "vehicle_delete_form.html"
+    success_url = reverse_lazy("vehicle")
+
 
 class EnterpriseDeleteView(DeleteView):
     model = Enterprise
-    template_name = 'enterprise_delete_form.html'
-    fields = ['name','address','num_of_employee']
+    template_name = "enterprise_delete_form.html"
+    fields = ["name", "address", "num_of_employee"]
+
 
 class PathViewSet(generics.ListAPIView):
     queryset = Routes.objects.all()
     serializer_class = PathSerializer
-    fields = ['id', 'car', 'route','timestamp']
+    fields = ["id", "car", "route", "timestamp"]
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['car','timestamp']
-    serialize('geojson', Routes.objects.all(),
-              geometry_field='route',
-              fields=('id', 'car', 'route','timestamp'))
+    filterset_fields = ["car", "timestamp"]
+    # serialize('geojson', Routes.objects.all(),
+    #           geometry_field='route',
+    #           fields=('id', 'car', 'route','timestamp'))
+
 
 class LocationView(APIView):
     def get(self, request):
