@@ -129,3 +129,29 @@ def calc_bearing(lat1, long1, lat2, long2):
     bearing = (bearing + 360) % 360
 
     return bearing
+
+from geopy.distance import geodesic
+from math import atan2, cos, sin, radians
+
+def calculate_coordinate_between_points(start_coord, end_coord, distance):
+    lat1, lon1 = start_coord
+    lat2, lon2 = end_coord
+
+    azimuth = atan2(sin(radians(lon2 - lon1)) * cos(radians(lat2)),
+                    cos(radians(lat1)) * sin(radians(lat2)) -
+                    sin(radians(lat1)) * cos(radians(lat2)) *
+                    cos(radians(lon2 - lon1)))
+
+    new_latitude = lat1 + (distance * cos(azimuth)) / 111000
+    new_longitude = lon1 + (distance * sin(azimuth)) / (111000 * cos(radians(lat1)))
+
+    return new_latitude, new_longitude
+
+start = "62.032664, 129.749947"
+finish = "62.029354, 129.730650"
+start_coordinate = [float(x) for x in start.split(', ')]  
+end_coordinate = [float(x) for x in finish.split(', ')]
+distance = 200  
+
+new_coordinate = calculate_coordinate_between_points(start_coordinate, end_coordinate, distance)
+print("Новая координата:", new_coordinate)
