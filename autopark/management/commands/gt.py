@@ -1,7 +1,9 @@
 from pprint import pprint
 
 import geopy
-import numpy as np
+
+# import geopy
+# import numpy as np
 from geopy.distance import geodesic, distance
 from django.contrib.gis.geos import MultiPoint, Point
 from faker import Faker
@@ -10,6 +12,8 @@ from autopark.models import Vehicle, Enterprise, Brand, Driver, Enterprise, Rout
 import openrouteservice
 import json
 import math
+
+from math import atan2, cos, sin, radians
 
 
 class Command(BaseCommand):
@@ -31,7 +35,7 @@ class Command(BaseCommand):
 
         faker = Faker()
         print(faker.longitude(), faker.latitude())
-        print(type(faker.longitude()))
+        # print(type(faker.longitude()))
         route = Routes.objects.create(
             car=car,
             route=MultiPoint(
@@ -41,7 +45,6 @@ class Command(BaseCommand):
             finish=f"{x_finish};{y_finish}",
         )
         route.points.create(point=f"{x_start};{y_start}")
-        next_point(route)
         # for i in range(10):
         #     point = Point(x=float(faker.longitude()), y=float(faker.latitude()))
         #     route.route.append(point)
@@ -70,88 +73,98 @@ class Command(BaseCommand):
         # # 'distance_limit': treck_len,
         # }
 
+        def calc_bearing(lat1, long1, lat2, long2):
+            # Convert latitude and longitude to radians
+            lat1 = math.radians(lat1)
+            long1 = math.radians(long1)
+            lat2 = math.radians(lat2)
+            long2 = math.radians(long2)
 
-def next_point(route: Routes):
-    x_start, y_start = [float(x) for x in route.points.first().point.split(";")]
-    x_finish, y_finish = [float(x) for x in route.finish.split(";")]
+            # Calculate the bearing
+            bearing = math.atan2(
+                math.sin(long2 - long1) * math.cos(lat2),
+                math.cos(lat1) * math.sin(lat2)
+                - math.sin(lat1) * math.cos(lat2) * math.cos(long2 - long1),
+            )
 
-    data = {
-        # "maximum_speed": route.max_speed,
-        "preference": "fastest",
-        "coordinates": ((x_start, y_start), (x_finish, y_finish)),
-    }
+            # Convert the bearing to degrees
+            bearing = math.degrees(bearing)
 
-    distance_1 = route.max_speed * 360 * 0.1
+            # Make sure the bearing is positive
+            bearing = (bearing + 360) % 360
 
-    client = openrouteservice.Client(
-        key="5b3ce3597851110001cf6248017011c8bff04d5096aae5b5c8f03c15"
-    )
-    routes = client.directions(**data)
-    bbox = routes["routes"][0]["bbox"]
-    print(type(bbox[0]))
-    # distance = geopy.distance.geodesic(bbox[0:2], bbox[2:4]).km
-    point = geodesic(bbox[0:2], bbox[2:4]).destination(
-        point=geopy.Point(bbox[0:2]), distance=distance, bearing=calc_bearing(*bbox)
-    )
-    # x = np.linspace(bbox[0],bbox[1],10)
-    # y = np.linspace(bbox[2],bbox[4],10)
-    # point = distance.interpolate(bbox[0:2], bbox[2:4])
-    print(distance_1)
+            return bearing
 
-    print("POINT", point)
+        def calculate_coordinate_between_points(start_coord, end_coord, distance):
+            lat1, lon1 = start_coord
+            lat2, lon2 = end_coord
 
-    # print(routes["routes"][0]["bbox"])
-    # y =
-    # point = f"{x};{y}"
-    # routes.points.create(point=point)
+            azimuth = atan2(
+                sin(radians(lon2 - lon1)) * cos(radians(lat2)),
+                cos(radians(lat1)) * sin(radians(lat2))
+                - sin(radians(lat1)) * cos(radians(lat2)) * cos(radians(lon2 - lon1)),
+            )
 
-    pprint(routes)
+            new_latitude = lat1 + (distance * cos(azimuth)) / 111000
+            new_longitude = lon1 + (distance * sin(azimuth)) / (
+                111000 * cos(radians(lat1))
+            )
 
+            return new_latitude, new_longitude
 
-def calc_bearing(lat1, long1, lat2, long2):
-    # Convert latitude and longitude to radians
-    lat1 = math.radians(lat1)
-    long1 = math.radians(long1)
-    lat2 = math.radians(lat2)
-    long2 = math.radians(long2)
+        # start = "62.032664, 129.749947"
+        # finish = "62.029354, 129.730650"
+        # start_coordinate = [float(x) for x in start.split(", ")]
+        # end_coordinate = [float(x) for x in finish.split(", ")]
+        # # distance = 200
+        #
+        # new_coordinate = calculate_coordinate_between_points(
+        #     start_coord=start_coordinate, end_coord=end_coordinate, distance=200
+        # )
+        # print("Новая координата:", new_coordinate)
 
-    # Calculate the bearing
-    bearing = math.atan2(
-        math.sin(long2 - long1) * math.cos(lat2),
-        math.cos(lat1) * math.sin(lat2)
-        - math.sin(lat1) * math.cos(lat2) * math.cos(long2 - long1),
-    )
+        def next_point(rout: Routes):
+            x_start, y_start = [float(x) for x in rout.points.first().point.split(";")]
+            x_finish, y_finish = [float(x) for x in rout.finish.split(";")]
 
-    # Convert the bearing to degrees
-    bearing = math.degrees(bearing)
+            data = {
+                # "maximum_speed": route.max_speed,
+                "preference": "fastest",
+                "coordinates": ((x_start, y_start), (x_finish, y_finish)),
+            }
 
-    # Make sure the bearing is positive
-    bearing = (bearing + 360) % 360
+            distance_1 = rout.max_speed * 360 * 0.1
 
-    return bearing
+            client = openrouteservice.Client(
+                key="5b3ce3597851110001cf6248017011c8bff04d5096aae5b5c8f03c15"
+            )
+            routes = client.directions(**data)
+            bbox = routes["routes"][0]["bbox"]
+            # print(type(bbox[0]))
+            point = calculate_coordinate_between_points(
+                bbox[0:2], bbox[2:4], distance_1
+            )
+            rout.points.create(point=f"{point[0]};{point[1]}")
+            # distance = geopy.distance.geodesic(bbox[0:2], bbox[2:4]).km
+            # point = geodesic(bbox[0:2], bbox[2:4]).destination(
+            #     point=geopy.Point(bbox[0:2]),
+            #     distance=distance,
+            #     bearing=calc_bearing(*bbox),
+            # )
+            # x = np.linspace(bbox[0],bbox[1],10)
+            # y = np.linspace(bbox[2],bbox[4],10)
+            # point = distance.interpolate(bbox[0:2], bbox[2:4])
+            # print(distance_1)
+            #
+            # print("POINT", point)
 
-from geopy.distance import geodesic
-from math import atan2, cos, sin, radians
+            # print(routes["routes"][0]["bbox"])
+            # y =
+            # point = f"{x};{y}"
+            # routes.points.create(point=point)
 
-def calculate_coordinate_between_points(start_coord, end_coord, distance):
-    lat1, lon1 = start_coord
-    lat2, lon2 = end_coord
-
-    azimuth = atan2(sin(radians(lon2 - lon1)) * cos(radians(lat2)),
-                    cos(radians(lat1)) * sin(radians(lat2)) -
-                    sin(radians(lat1)) * cos(radians(lat2)) *
-                    cos(radians(lon2 - lon1)))
-
-    new_latitude = lat1 + (distance * cos(azimuth)) / 111000
-    new_longitude = lon1 + (distance * sin(azimuth)) / (111000 * cos(radians(lat1)))
-
-    return new_latitude, new_longitude
-
-start = "62.032664, 129.749947"
-finish = "62.029354, 129.730650"
-start_coordinate = [float(x) for x in start.split(', ')]  
-end_coordinate = [float(x) for x in finish.split(', ')]
-distance = 200  
-
-new_coordinate = calculate_coordinate_between_points(start_coordinate, end_coordinate, distance)
-print("Новая координата:", new_coordinate)
+        #
+        #     pprint(routes)
+        #
+        # print("Новая координата:", next_point(route))
+        # next = next_point(route)
