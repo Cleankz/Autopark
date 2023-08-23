@@ -31,8 +31,12 @@ class Command(BaseCommand):
             for route in routes:
                 route.max_speed = max_speed
                 next_point(route)
+from apscheduler.schedulers.background import BackgroundScheduler
 
-
+scheduler = BackgroundScheduler()
+scheduler.add_job(next_point, 'interval', seconds=10)
+scheduler.start()
+scheduler.add_job(run_for_minute, 'interval', seconds=60)
         # x_start, y_start = (8.34234, 48.23424)
         # x_finish, y_finish = (8.34423, 48.26424)
         # car = Vehicle.objects.filter(pk=car).first()
