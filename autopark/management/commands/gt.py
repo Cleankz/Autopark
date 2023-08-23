@@ -27,9 +27,12 @@ class Command(BaseCommand):
 
     def handle(self, car, max_speed, spread, *args, **kwargs):
         routes = Routes.objects.filter(car_id=car)
-        for route in routes:
-            route.max_speed = max_speed
-            next_point(route)
+        def next_p():
+            for route in routes:
+                route.max_speed = max_speed
+                next_point(route)
+
+
         # x_start, y_start = (8.34234, 48.23424)
         # x_finish, y_finish = (8.34423, 48.26424)
         # car = Vehicle.objects.filter(pk=car).first()
