@@ -52,3 +52,21 @@ class Command(BaseCommand):
         #     finish=f"{x_finish};{y_finish}",
         # )
         # route.points.create(point=f"{x_start};{y_start}")
+
+
+from apscheduler.schedulers.background import BackgroundScheduler
+import subprocess
+import time
+
+def run_for_min():
+    start = time.time()
+    proc = subprocess.Popen(["ping", "8.8.8.8"])
+    
+    while time.time() - start < 60:
+        time.sleep(1)
+        
+    proc.kill()
+
+scheduler = BackgroundScheduler()
+scheduler.add_job(run_for_min, 'date', run_date=time.time()+10) 
+scheduler.start()
