@@ -1,19 +1,9 @@
-from pprint import pprint
-
-import geopy
-
-# import geopy
-# import numpy as np
-from geopy.distance import geodesic, distance
-from django.contrib.gis.geos import MultiPoint, Point
-from faker import Faker
 from django.core.management.base import BaseCommand, CommandError
 from autopark.models import Vehicle, Enterprise, Brand, Driver, Enterprise, Routes
-import openrouteservice
-import json
-import math
 
 from autopark.utils import next_point
+
+import time
 
 
 class Command(BaseCommand):
@@ -25,48 +15,13 @@ class Command(BaseCommand):
         parser.add_argument("max_speed", type=int, help="Car max speed")
         parser.add_argument("spread", type=int, help="spread num")
 
-    def handle(self, car, max_speed, spread, *args, **kwargs):
+    def handle(self, car, max_speed, treck_len, spread, *args, **kwargs):
         routes = Routes.objects.filter(car_id=car)
-        def next_p():
+        start = time.time()
+        while time.time() - start < 60:
+            time.sleep(10)
             for route in routes:
                 route.max_speed = max_speed
+                route.distance = treck_len
+                route.step = spread
                 next_point(route)
-
-
-        # x_start, y_start = (8.34234, 48.23424)
-        # x_finish, y_finish = (8.34423, 48.26424)
-        # car = Vehicle.objects.filter(pk=car).first()
-        #
-        # if car is None:
-        #     raise CommandError("Такой  машины не существует")
-        #
-        # faker = Faker()
-        # print(faker.longitude(), faker.latitude())
-        # # print(type(faker.longitude()))
-        # route = Routes.objects.create(
-        #     car=car,
-        #     route=MultiPoint(
-        #         Point(x=float(faker.longitude()), y=float(faker.latitude()))
-        #     ),
-        #     start=f"{x_start};{y_start}",
-        #     finish=f"{x_finish};{y_finish}",
-        # )
-        # route.points.create(point=f"{x_start};{y_start}")
-
-
-from apscheduler.schedulers.background import BackgroundScheduler
-import subprocess
-import time
-
-def run_for_min():
-    start = time.time()
-    proc = subprocess.Popen(["ping", "8.8.8.8"])
-    
-    while time.time() - start < 60:
-        time.sleep(1)
-        
-    proc.kill()
-
-scheduler = BackgroundScheduler()
-scheduler.add_job(run_for_min, 'date', run_date=time.time()+10) 
-scheduler.start()

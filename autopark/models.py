@@ -213,7 +213,8 @@ class Routes(models.Model):
 
 
 class RoutePoint(models.Model):
-    route = models.ForeignKey(Routes, on_delete=models.CASCADE, related_name="points")
+    # route = models.ForeignKey(Routes, on_delete=models.CASCADE, related_name="points")
+    route = models.ForeignKey(Vehicle, on_delete=models.CASCADE, related_name="points")
     point = models.CharField(max_length=120)
     created = models.DateTimeField(auto_now_add=True)
 
